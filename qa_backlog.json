@@ -1,0 +1,35 @@
+[
+  {
+    "id": "BL-101",
+    "title": "Add automated UI tests for Member Form (avatar upload)",
+    "status": "in_progress",
+    "priority": "high"
+  },
+  {
+    "id": "BL-102",
+    "title": "Improve test data generation for member forms",
+    "status": "backlog",
+    "priority": "medium"
+  },
+  {
+    "id": "BL-103",
+    "title": "Add regression tests for relationships",
+    "status": "backlog",
+    "priority": "low"
+  }
+  ,
+  {
+    "id": "BL-104",
+    "title": "Coordinate automation scope for Slice 4 tests (avatar upload) with BA/CTO",
+    "status": "in_progress",
+    "priority": "medium",
+    "assigned_to": ["BA", "CTO"]
+  },
+  {
+    "id": "BL-105",
+    "title": "CEO escalation readiness for Slice 4 blockers",
+    "status": "backlog",
+    "priority": "high",
+    "assigned_to": ["CEO"]
+  }
+]

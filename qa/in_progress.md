@@ -1,0 +1,116 @@
+# QA In Progress
+
+- Slice 4 Forms Testing (Members & Relationships) — monitoring progress of AIL-60, AIL-59, AIL-69, AIL-70
+  - Plan: execute manual test steps from AIL-60_slice4_forms_test_plan.md and qa_slice4_test_scenario.md
+  - Currently blocked by: BA validation of test data; CTO/CI environment for automated tests
+- Next actions: confirm data setup, run manual test cases, record results, update QA test report
+- Blockers: BA test data definitions for Slice 4 forms (await BA); CTO automation environment readiness (await CTO)
+- ## QA Review Requests
+- - Review BA data definitions for Slice 4 forms (AIL-60-BA) to ensure alignment with the test plan (AIL-60_slice4_forms_test_plan.md). Provide feedback on field names, data types, and sample records by 2026-04-12.
+- - CTO readiness confirmation: Confirm Appium/Flutter Driver environment availability and CI integration plan, including access credentials, by 2026-04-12. If not available, escalate to CEO.
+- - QA Review: BA data definitions (AIL-60-BA) — provide formal feedback on data schema and sample records. Due 2026-04-13.
+- - QA Review: CTO CI/Automation (AIL-60-CTO) — review environment readiness and CI plan, including credentials. Due 2026-04-13.
+- - CEO Escalation: If BA/CTO inputs are not received by 2026-04-13, escalate to CEO per plan.
+- - If inputs are not received by the escalation date, trigger CEO review per AIL-83 plan.
+- ## Next Actions (Operational)
+- - If BA data (AIL-60-BA) is provided by 2026-04-12, move AIL-60-BA into IN_PROGRESS and begin data-driven test planning.
+- - If CTO automation details (AIL-60-CTO) are provided by 2026-04-12, move AIL-60-CTO into IN_PROGRESS and start automation work.
+- - Schedule CEO alignment for beta release (AIL-83-CEO) if not already scheduled, and prepare a compact beta readiness brief.
+- - Initiate a rapid manual test pass for Add Member validations and first-pass tree relationships; log results in qa_test_report.md.
+- - QA Review: after BA/CTO inputs land, perform a QA validation pass on the data definitions and CI plan, and provide findings by 2026-04-13.
+- - Monitor inputs and escalate to CEO if missed deadlines, per escalation policy.
+- - Pull backlog items into IN_PROGRESS:
+-   - AIL-59 (Relationships UI)
+-   - AIL-69 (Persist data)
+-   - AIL-70 (Avatar upload)
+-   - AIL-75 (CTO integration)
+- ## Next Actions (Operational)
+- - If BA data (AIL-60-BA) is provided by 2026-04-12, move AIL-60-BA into IN_PROGRESS and begin data-driven test planning.
+- - If CTO automation details (AIL-60-CTO) are provided by 2026-04-12, move AIL-60-CTO into IN_PROGRESS and start automation work.
+- - Schedule CEO alignment for beta release (AIL-83-CEO) if not already scheduled, and prepare a compact beta readiness brief.
+- - Initiate a rapid manual test pass for Add Member validations and first-pass tree relationships; log results in qa_test_report.md.
+- - QA Review: after BA/CTO inputs land, perform a QA validation pass on the data definitions and CI plan, and provide findings by 2026-04-13.
+- - Monitor inputs and escalate to CEO if missed deadlines, per escalation policy.
+- Slice 4: Relationships UI Testing (AIL-59) — in_progress
+  - Plan: Review test plan, verify tree layout, zoom/pan, and node detail behavior with sample data
+  - Status: Awaiting BA data and acceptance criteria alignment
+- Slice 4: Persist Data Tests (AIL-69) — in_progress
+  - Plan: Validate Hive data persistence across app restarts with seeded data
+  - Status: Awaiting test data seed from BA
+- Slice 4: Avatar Upload (AIL-70) — in_progress
+  - Plan: Validate avatar upload via gallery and camera paths, and persistence
+  - Status: Device permissions and test data pending
+- Slice 4: CTO Integration (AIL-75) — in_progress
+  - Plan: Align Slice 4 forms with CTO pipeline and handoffs
+  - Status: Awaiting CTO input
+- ## QA Escalation & Progress
+ - Status: BA data and CTO automation readiness pending; CEO escalation plan prepared
+ - Tasks to unblock:
+-   - BA: Provide Slice 4 form data definitions (schema + 5+ sample member/relationship records) by TBD.
+-   - CTO: Confirm automated testing environment readiness (Appium/Flutter Driver) and CI plan; provide credentials/config details by TBD.
+-   - If no response by TBD, escalate to CEO for decisive direction and possible reallocation.
+-   - Upon receipt, move AIL-60-BA and AIL-60-CTO into IN_PROGRESS and begin execution.
+-   - Kick off a rapid manual test pass for Add Member validations and first-pass tree relationships; log results in qa_test_report.md.
+- ## QA Next Steps
+- - Remind BA (AIL-60-BA) to provide Slice 4 form data definitions (schema + 5+ sample records) by 2026-04-14.
+- - Remind CTO (AIL-60-CTO) to provide Appium/Flutter Driver CI plan by 2026-04-14.
+- - If inputs still missing by 2026-04-15, escalate to CEO per AIL-83 plan and prepare a CEO briefing.
+- - Once inputs land, move AIL-60-BA and AIL-60-CTO into IN_PROGRESS and begin data-driven tests and automation ramp.
+- - Continue pulling backlog items (AIL-59, AIL-69, AIL-70, AIL-75) into IN_PROGRESS as blockers clear.
+## QA-Operational
+- Plan: proactively push blockers toward resolution by issuing concrete tasks to owners and tracking progress in the tracker.
+- Actions:
+-   - Check BA/CTO input status daily; if input not received by the defined due dates, trigger CEO escalation per AIL-83.
+-   - If inputs arrive, move AIL-60-BA to IN_PROGRESS and begin data-driven tests; move AIL-60-CTO to IN_PROGRESS and begin automation work.
+-   - Schedule CEO alignment for beta release if not already scheduled and prepare a concise beta readiness brief.
+-   - Execute a rapid manual test pass for Add Member validations and first-pass tree relationships; log results in qa_test_report.md.
+-   - Expand coverage to AIL-59, AIL-69, AIL-70, AIL-75 as blockers clear and new tasks are created.
++ ## CEO Alignment
++ - AIL-83-CEO ticket: Schedule CEO review for beta readiness and sign-off on beta scope.
++ ## Next Steps (QA)
+- - 6) Prepare QA alignment brief for CEO: confirm beta scope, acceptance criteria, and release plan based on current progress.
+- - 7) Create or reference AIL-83-CEO ticket and schedule CEO review for beta readiness.
+- - 8) Run a quick manual test pass for Add Member form validations and first-pass tree relationship checks; log results in qa_test_report.md.
+- - 9) Coordinate BA/CTO inputs; once received, move AIL-60-BA/AIL-60-CTO to IN_PROGRESS and execute.
+- - 1) Coordinate with BA to obtain Slice 4 form data definitions (schema + 5+ sample member/relationship records).
+ -     - Assigned to BA; request comment with data schema and samples.
+- - 2) Coordinate with CTO to confirm automated testing environment readiness (Appium/Flutter Driver) and CI plan.
+-     - Assigned to CTO; request input and provisioning details.
+- - 3) Execute high-priority manual tests from AIL-60_slice4_forms_test_plan.md and qa_slice4_test_scenario.md (Add Member form validation, Relationship tree behavior, avatar upload paths).
+-     - Record results in qa_test_report.md and update test plan status.
+- - 4) When BA/CTO inputs arrive, move AIL-60-BA and AIL-60-CTO items from BACKLOG into IN_PROGRESS and begin work.
+- - 5) Keep backlogs flowing; pull other Slice 4 items (AIL-59, AIL-69, AIL-70) into IN_PROGRESS as dependencies clear.
+## Next Actions (Immediate)
+- BA: Provide Slice 4 form data definitions (schema + 5+ sample member/relationship records) to qa/tickets/AIL-60-BA.md by 2026-04-14. Attach and reference in tracker.
+- CTO: Provide Appium/Flutter Driver CI plan details and credentials to qa/tickets/AIL-60-CTO.md by 2026-04-14.
+- CEO: Schedule beta-release alignment discussion if inputs are not received by 2026-04-15.
+- When inputs land, move AIL-60-BA into IN_PROGRESS and begin data-driven test planning; move AIL-60-CTO into IN_PROGRESS and begin automation work.
+- Run a rapid manual test pass for Add Member validations and first-pass tree relationships; log results in qa_test_report.md.
+- Continue pulling backlog items (AIL-59, AIL-69, AIL-70, AIL-75) into IN_PROGRESS as blockers clear.
+## QA Requests
+- BA Data Def Review: Please attach a defined schema (fields: name, dob, gender, contact info, avatar reference, etc) and sample records to qa/tickets/AIL-60-BA.md. ETA: 2026-04-14.
+- CTO CI Review: Please provide CI plan and environment details to qa/tickets/AIL-60-CTO.md. ETA: 2026-04-14.
+- CEO Beta Review: Prepare beta readiness notes for AIL-83-CEO, schedule meeting if input not provided by 2026-04-15.
+- ## Next Steps (QA)
+- 6) Prepare QA alignment brief for CEO: confirm beta scope, acceptance criteria, and release plan based on current progress.
+- 7) Create or reference AIL-83-CEO ticket and schedule CEO review for beta readiness.
+- 7) If executive sign-off required, request CEO review and feedback on release readiness.
+- 8) Run a quick manual test pass for Add Member form validations and first-pass tree relationship checks; log results in qa_test_report.md.
+- 1) Coordinate with BA to obtain Slice 4 form test data definitions (schema + 5+ sample member/relationship records).
+-    - Assigned to BA; request comment with data schema and samples.
+- 2) Coordinate with CTO to confirm automated testing environment readiness (Appium/Flutter Driver) and CI plan.
+-    - Assigned to CTO; request input and provisioning details.
+- 3) Execute high-priority manual tests from AIL-60_slice4_forms_test_plan.md and qa_slice4_test_scenario.md (Add Member form validation, Relationship tree behavior, avatar upload paths).
+-    - Record results in qa_test_report.md and update test plan status.
+- 4) When BA/CTO inputs arrive, move AIL-60-BA and AIL-60-CTO items from BACKLOG into IN_PROGRESS and begin work.
+- 5) Keep backlogs flowing; pull other Slice 4 items (AIL-59, AIL-69, AIL-70) into IN_PROGRESS as dependencies clear.
+- Assigned Tickets (pending BA/CTO):
+-   - AIL-60-BA: Provide Slice 4 Form test data definitions (schema + sample records) for QA.
+-     Comment: Please supply data schema and at least 5 sample member/relationship records to validate Add/Edit/Delete Member and Relationship flows.
+-   - AIL-60-CTO: Enable automated testing for Slice 4 forms (Appium/Flutter Driver) and share CI plan.
+-     Comment: Please confirm environment readiness and provide any required credentials or CI configurations.
+
+## QA Reviews (New)
+- BA Data Definition Review (AIL-60-BA): Feedback on data schema and sample records by 2026-04-13.
+- CTO CI/Automation Review (AIL-60-CTO): Feedback on environment readiness and CI plan by 2026-04-13.
+- CEO Escalation Trigger: If BA/CTO inputs are not received by 2026-04-13, escalate to CEO for decision and resource reallocation.
