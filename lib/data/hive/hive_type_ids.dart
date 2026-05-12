@@ -3,4 +3,5 @@ abstract final class FamilyTreeHiveTypeIds {
   static const int familyTreeRecord = 0;
   static const int person = 1;
   static const int relationship = 2;
+  static const int familyEvent = 3;
 }

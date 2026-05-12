@@ -1,5 +1,7 @@
 export 'errors/storage_exception.dart';
 export 'hive/family_tree_hive.dart';
+export 'models/family_event.dart';
+export 'models/family_event_kind.dart';
 export 'models/family_tree_record.dart';
 export 'models/person.dart';
 export 'models/relationship.dart';

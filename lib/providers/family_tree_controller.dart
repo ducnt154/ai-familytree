@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
+import '../data/models/family_event.dart';
+import '../data/models/family_event_kind.dart';
 import '../data/models/family_tree_record.dart';
 import '../data/models/gender.dart';
 import '../data/models/person.dart';
@@ -23,6 +25,7 @@ class FamilyTreeController extends ChangeNotifier {
   String? _activeTreeId;
   List<Person> _persons = [];
   List<Relationship> _relationships = [];
+  List<FamilyEvent> _events = [];
   String? _lastError;
   bool _loading = true;
 
@@ -39,6 +42,7 @@ class FamilyTreeController extends ChangeNotifier {
 
   List<Person> get persons => List.unmodifiable(_persons);
   List<Relationship> get relationships => List.unmodifiable(_relationships);
+  List<FamilyEvent> get events => List.unmodifiable(_events);
   String? get lastError => _lastError;
   bool get loading => _loading;
 
@@ -86,19 +90,23 @@ class FamilyTreeController extends ChangeNotifier {
     if (id == null) {
       _persons = [];
       _relationships = [];
+      _events = [];
       return;
     }
     try {
       _persons = await _repo.listPersons(id);
       _relationships = await _repo.listRelationships(id);
+      _events = await _repo.listEvents(id);
     } on StorageException catch (e) {
       _lastError = e.message;
       _persons = [];
       _relationships = [];
+      _events = [];
     } catch (e) {
       _lastError = e.toString();
       _persons = [];
       _relationships = [];
+      _events = [];
     }
   }
 
@@ -270,6 +278,63 @@ class FamilyTreeController extends ChangeNotifier {
   Future<void> removeRelationship(String relationshipId) async {
     try {
       await _repo.deleteRelationship(relationshipId);
+      await _reloadActiveScope();
+      notifyListeners();
+    } on StorageException catch (e) {
+      _lastError = e.message;
+      notifyListeners();
+    } catch (e) {
+      _lastError = e.toString();
+      notifyListeners();
+    }
+  }
+
+  Future<void> saveFamilyEvent({
+    FamilyEvent? existing,
+    required String personId,
+    required FamilyEventKind kind,
+    required DateTime eventDate,
+    String? notes,
+    required bool reminderEnabled,
+    int? reminderDays,
+  }) async {
+    final treeId = _activeTreeId;
+    if (treeId == null) {
+      _lastError = 'Chưa có cây gia phả.';
+      notifyListeners();
+      return;
+    }
+    final now = DateTime.now().toUtc();
+    final trimmed = notes?.trim();
+    final rd = reminderEnabled ? (reminderDays ?? 1) : null;
+    final event = FamilyEvent(
+      id: existing?.id ?? _uuid.v4(),
+      familyTreeId: treeId,
+      personId: personId,
+      eventKind: kind,
+      eventDate: eventDate,
+      notes: trimmed == null || trimmed.isEmpty ? null : trimmed,
+      reminderEnabled: reminderEnabled,
+      reminderDays: rd,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    );
+    try {
+      await _repo.upsertEvent(event);
+      await _reloadActiveScope();
+      notifyListeners();
+    } on StorageException catch (e) {
+      _lastError = e.message;
+      notifyListeners();
+    } catch (e) {
+      _lastError = e.toString();
+      notifyListeners();
+    }
+  }
+
+  Future<void> removeFamilyEvent(String eventId) async {
+    try {
+      await _repo.deleteEvent(eventId);
       await _reloadActiveScope();
       notifyListeners();
     } on StorageException catch (e) {

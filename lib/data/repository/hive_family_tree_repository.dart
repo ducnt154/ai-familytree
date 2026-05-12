@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 import '../../services/avatar_storage.dart';
 import '../errors/storage_exception.dart';
 import '../hive/family_tree_hive.dart';
+import '../models/family_event.dart';
 import '../models/family_tree_record.dart';
 import '../models/person.dart';
 import '../models/relationship.dart';
@@ -17,7 +18,11 @@ class HiveFamilyTreeRepository implements FamilyTreeRepository {
   Box<FamilyTreeRecord> get _trees => _hive.familyTrees;
   Box<Person> get _persons => _hive.persons;
   Box<Relationship> get _relationships => _hive.relationships;
+  Box<FamilyEvent> get _events => _hive.events;
   Box get _avatarPaths => _hive.personAvatarPaths;
+
+  static int _dateOrdinal(DateTime d) =>
+      d.year * 10000 + d.month * 100 + d.day;
 
   Person _withAvatar(Person p) {
     final path = _avatarPaths.get(p.id) as String?;
@@ -72,6 +77,7 @@ class HiveFamilyTreeRepository implements FamilyTreeRepository {
   @override
   Future<void> deleteTree(String id) async {
     try {
+      await _deleteEventsForTree(id);
       await _deleteRelationshipsForTree(id);
       await _deletePersonsForTree(id);
       await _trees.delete(id);
@@ -95,6 +101,17 @@ class HiveFamilyTreeRepository implements FamilyTreeRepository {
       await _purgeAvatarForPerson(key as String);
     }
     await _persons.deleteAll(keys);
+  }
+
+  Future<void> _deleteEventsForTree(String familyTreeId) async {
+    final keys = <dynamic>[];
+    for (final key in _events.keys) {
+      final e = _events.get(key);
+      if (e != null && e.familyTreeId == familyTreeId) {
+        keys.add(key);
+      }
+    }
+    await _events.deleteAll(keys);
   }
 
   Future<void> _deleteRelationshipsForTree(String familyTreeId) async {
@@ -168,6 +185,7 @@ class HiveFamilyTreeRepository implements FamilyTreeRepository {
   @override
   Future<void> deletePerson(String id) async {
     try {
+      await _deleteEventsForPerson(id);
       await _deleteRelationshipsForPerson(id);
       await _purgeAvatarForPerson(id);
       await _persons.delete(id);
@@ -177,6 +195,17 @@ class HiveFamilyTreeRepository implements FamilyTreeRepository {
         st,
       );
     }
+  }
+
+  Future<void> _deleteEventsForPerson(String personId) async {
+    final keys = <dynamic>[];
+    for (final key in _events.keys) {
+      final e = _events.get(key);
+      if (e != null && e.personId == personId) {
+        keys.add(key);
+      }
+    }
+    await _events.deleteAll(keys);
   }
 
   Future<void> _deleteRelationshipsForPerson(String personId) async {
@@ -238,6 +267,87 @@ class HiveFamilyTreeRepository implements FamilyTreeRepository {
     } catch (e, st) {
       Error.throwWithStackTrace(
         StorageException('Không xóa được quan hệ.', e),
+        st,
+      );
+    }
+  }
+
+  @override
+  Future<List<FamilyEvent>> listEvents(String familyTreeId) async {
+    try {
+      final list = _events.values
+          .where((e) => e.familyTreeId == familyTreeId)
+          .toList();
+      list.sort((a, b) {
+        final cmp = _dateOrdinal(a.eventDate).compareTo(_dateOrdinal(b.eventDate));
+        if (cmp != 0) return cmp;
+        return a.id.compareTo(b.id);
+      });
+      return list;
+    } catch (e, st) {
+      Error.throwWithStackTrace(
+        StorageException('Không đọc được danh sách sự kiện.', e),
+        st,
+      );
+    }
+  }
+
+  @override
+  Future<List<FamilyEvent>> listUpcomingEvents(
+    String familyTreeId, {
+    int withinDays = 30,
+  }) async {
+    try {
+      final all = await listEvents(familyTreeId);
+      final now = DateTime.now();
+      final todayOrd = _dateOrdinal(now);
+      final end = now.add(Duration(days: withinDays));
+      final endOrd = _dateOrdinal(end);
+      return all
+          .where((e) {
+            final o = _dateOrdinal(e.eventDate);
+            return o >= todayOrd && o <= endOrd;
+          })
+          .toList();
+    } catch (e, st) {
+      Error.throwWithStackTrace(
+        StorageException('Không đọc được sự kiện sắp tới.', e),
+        st,
+      );
+    }
+  }
+
+  @override
+  Future<FamilyEvent?> getEvent(String id) async {
+    try {
+      return _events.get(id);
+    } catch (e, st) {
+      Error.throwWithStackTrace(
+        StorageException('Không đọc được sự kiện.', e),
+        st,
+      );
+    }
+  }
+
+  @override
+  Future<void> upsertEvent(FamilyEvent event) async {
+    try {
+      await _events.put(event.id, event);
+    } catch (e, st) {
+      Error.throwWithStackTrace(
+        StorageException('Không lưu được sự kiện.', e),
+        st,
+      );
+    }
+  }
+
+  @override
+  Future<void> deleteEvent(String id) async {
+    try {
+      await _events.delete(id);
+    } catch (e, st) {
+      Error.throwWithStackTrace(
+        StorageException('Không xóa được sự kiện.', e),
         st,
       );
     }

@@ -1,8 +1,10 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../models/family_event.dart';
 import '../models/family_tree_record.dart';
 import '../models/person.dart';
 import '../models/relationship.dart';
+import 'adapters/family_event_adapter.dart';
 import 'adapters/family_tree_record_adapter.dart';
 import 'adapters/person_adapter.dart';
 import 'adapters/relationship_adapter.dart';
@@ -17,6 +19,7 @@ class FamilyTreeHive {
     required this.familyTrees,
     required this.persons,
     required this.relationships,
+    required this.events,
     required this.personAvatarPaths,
   });
 
@@ -24,17 +27,19 @@ class FamilyTreeHive {
   static const String familyTreesBoxName = 'family_trees';
   static const String personsBoxName = 'persons';
   static const String relationshipsBoxName = 'relationships';
+  static const String eventsBoxName = 'family_events';
   static const String personAvatarsBoxName = 'person_avatars';
 
   static const String schemaVersionKey = 'schemaVersion';
 
   /// Phiên bản schema hiện tại (tăng khi cần migrate dữ liệu).
-  static const int currentSchemaVersion = 1;
+  static const int currentSchemaVersion = 2;
 
   final Box<dynamic> meta;
   final Box<FamilyTreeRecord> familyTrees;
   final Box<Person> persons;
   final Box<Relationship> relationships;
+  final Box<FamilyEvent> events;
 
   /// personId → đường dẫn file avatar (absolute); tách khỏi [PersonAdapter] để tránh migrate binary.
   /// Dùng [Box] không generic để tương thích test/VM (tránh treo với `Box<String>`).
@@ -69,6 +74,7 @@ class FamilyTreeHive {
     final persons = await Hive.openBox<Person>(personsBoxName);
     final relationships =
         await Hive.openBox<Relationship>(relationshipsBoxName);
+    final events = await Hive.openBox<FamilyEvent>(eventsBoxName);
     final personAvatarPaths = await Hive.openBox(personAvatarsBoxName);
 
     final layer = FamilyTreeHive._(
@@ -76,6 +82,7 @@ class FamilyTreeHive {
       familyTrees: familyTrees,
       persons: persons,
       relationships: relationships,
+      events: events,
       personAvatarPaths: personAvatarPaths,
     );
     _instance = layer;
@@ -91,6 +98,9 @@ class FamilyTreeHive {
     }
     if (!Hive.isAdapterRegistered(FamilyTreeHiveTypeIds.relationship)) {
       Hive.registerAdapter(RelationshipAdapter());
+    }
+    if (!Hive.isAdapterRegistered(FamilyTreeHiveTypeIds.familyEvent)) {
+      Hive.registerAdapter(FamilyEventAdapter());
     }
   }
 
@@ -114,6 +124,10 @@ class FamilyTreeHive {
   }) async {
     if (from == 0 && to == 1) {
       // Bản đầu: không có dữ liệu legacy cần chuyển.
+      return;
+    }
+    if (from == 1 && to == 2) {
+      // Thêm box `family_events` — mở khi init, không cần chuyển dữ liệu cũ.
       return;
     }
     throw StateError('Chưa có migration Hive $from → $to');

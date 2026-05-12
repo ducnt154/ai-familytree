@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:familytree/data/hive/adapters/family_event_adapter.dart';
 import 'package:familytree/data/hive/adapters/family_tree_record_adapter.dart';
 import 'package:familytree/data/hive/adapters/person_adapter.dart';
 import 'package:familytree/data/hive/adapters/relationship_adapter.dart';
 import 'package:familytree/data/hive/hive_type_ids.dart';
+import 'package:familytree/data/models/family_event.dart';
+import 'package:familytree/data/models/family_event_kind.dart';
 import 'package:familytree/data/models/family_tree_record.dart';
 import 'package:familytree/data/models/gender.dart';
 import 'package:familytree/data/models/person.dart';
@@ -26,6 +29,9 @@ void main() {
     }
     if (!Hive.isAdapterRegistered(FamilyTreeHiveTypeIds.relationship)) {
       Hive.registerAdapter(RelationshipAdapter());
+    }
+    if (!Hive.isAdapterRegistered(FamilyTreeHiveTypeIds.familyEvent)) {
+      Hive.registerAdapter(FamilyEventAdapter());
     }
   });
 
@@ -145,14 +151,45 @@ void main() {
     await box.close();
   });
 
+  test('FamilyEventAdapter roundtrip', () async {
+    final now = DateTime.utc(2026, 4, 6, 12);
+    final original = FamilyEvent(
+      id: 'e1',
+      familyTreeId: 't1',
+      personId: 'p1',
+      eventKind: FamilyEventKind.birthday,
+      eventDate: DateTime.utc(1990, 5, 12),
+      notes: 'ghi chú',
+      reminderEnabled: true,
+      reminderDays: 3,
+      createdAt: now,
+      updatedAt: now,
+    );
+    final box = await Hive.openBox<FamilyEvent>('ev_test');
+    await box.put('k', original);
+    final read = box.get('k')!;
+    expect(read.id, original.id);
+    expect(read.familyTreeId, original.familyTreeId);
+    expect(read.personId, original.personId);
+    expect(read.eventKind, original.eventKind);
+    expect(read.eventDate, original.eventDate);
+    expect(read.notes, original.notes);
+    expect(read.reminderEnabled, original.reminderEnabled);
+    expect(read.reminderDays, original.reminderDays);
+    expect(read.createdAt, original.createdAt);
+    expect(read.updatedAt, original.updatedAt);
+    await box.close();
+  });
+
   test('typeIds không trùng', () {
     expect(
       {
         FamilyTreeHiveTypeIds.familyTreeRecord,
         FamilyTreeHiveTypeIds.person,
         FamilyTreeHiveTypeIds.relationship,
+        FamilyTreeHiveTypeIds.familyEvent,
       }.length,
-      3,
+      4,
     );
   });
 }

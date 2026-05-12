@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'data/hive/family_tree_hive.dart';
 import 'data/repository/hive_family_tree_repository.dart';
 import 'providers/family_tree_controller.dart';
+import 'ui/events/events_list_page.dart';
 import 'ui/forms/add_members_page.dart';
 import 'ui/search/search_page.dart';
 import 'ui/tree/family_tree_graph_view.dart';
@@ -64,7 +65,7 @@ class MainNavigationShell extends StatefulWidget {
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _index = 0;
 
-  static const _titles = ['Home', 'Tree', 'Add', 'Search', 'Settings'];
+  static const _titles = ['Home', 'Tree', 'Add', 'Search', 'Sự kiện'];
 
   Widget _pageFor(int index) {
     switch (index) {
@@ -77,7 +78,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       case 3:
         return const SearchPage();
       case 4:
-        return const SettingsPage();
+        return const EventsListPage();
       default:
         return const SizedBox.shrink();
     }
@@ -90,6 +91,19 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           ? null
           : AppBar(
               title: Text(_titles[_index]),
+              actions: [
+                IconButton(
+                  tooltip: 'Cài đặt',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SettingsPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.settings_outlined),
+                ),
+              ],
             ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
@@ -125,9 +139,9 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             label: 'Search',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.event_outlined),
+            selectedIcon: Icon(Icons.event),
+            label: 'Sự kiện',
           ),
         ],
       ),

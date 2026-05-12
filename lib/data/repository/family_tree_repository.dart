@@ -1,3 +1,4 @@
+import '../models/family_event.dart';
 import '../models/family_tree_record.dart';
 import '../models/person.dart';
 import '../models/relationship.dart';
@@ -27,4 +28,18 @@ abstract class FamilyTreeRepository {
   Future<void> upsertRelationship(Relationship relationship);
 
   Future<void> deleteRelationship(String id);
+
+  Future<List<FamilyEvent>> listEvents(String familyTreeId);
+
+  /// Sự kiện có [FamilyEvent.eventDate] trong khoảng [today, today + withinDays] (theo lịch local).
+  Future<List<FamilyEvent>> listUpcomingEvents(
+    String familyTreeId, {
+    int withinDays = 30,
+  });
+
+  Future<FamilyEvent?> getEvent(String id);
+
+  Future<void> upsertEvent(FamilyEvent event);
+
+  Future<void> deleteEvent(String id);
 }
