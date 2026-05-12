@@ -293,7 +293,14 @@ class FamilyTreeController extends ChangeNotifier {
     FamilyEvent? existing,
     required String personId,
     required FamilyEventKind kind,
+    String? customTitle,
     required DateTime eventDate,
+    bool isLunarDate = false,
+    int? lunarYear,
+    int? lunarMonth,
+    int? lunarDay,
+    bool lunarLeapMonth = false,
+    bool repeatYearly = false,
     String? notes,
     required bool reminderEnabled,
     int? reminderDays,
@@ -306,13 +313,21 @@ class FamilyTreeController extends ChangeNotifier {
     }
     final now = DateTime.now().toUtc();
     final trimmed = notes?.trim();
+    final titleTrim = customTitle?.trim();
     final rd = reminderEnabled ? (reminderDays ?? 1) : null;
     final event = FamilyEvent(
       id: existing?.id ?? _uuid.v4(),
       familyTreeId: treeId,
       personId: personId,
       eventKind: kind,
+      customTitle: titleTrim == null || titleTrim.isEmpty ? null : titleTrim,
       eventDate: eventDate,
+      isLunarDate: isLunarDate,
+      lunarYear: isLunarDate ? lunarYear : null,
+      lunarMonth: isLunarDate ? lunarMonth : null,
+      lunarDay: isLunarDate ? lunarDay : null,
+      lunarLeapMonth: isLunarDate ? lunarLeapMonth : false,
+      repeatYearly: repeatYearly,
       notes: trimmed == null || trimmed.isEmpty ? null : trimmed,
       reminderEnabled: reminderEnabled,
       reminderDays: rd,

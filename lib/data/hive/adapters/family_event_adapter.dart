@@ -23,12 +23,43 @@ class FamilyEventAdapter extends TypeAdapter<FamilyEvent> {
     final reminderDays = reader.readBool() ? reader.readInt32() : null;
     final createdAt = DateTime.parse(reader.readString());
     final updatedAt = DateTime.parse(reader.readString());
+
+    String? customTitle;
+    var isLunarDate = false;
+    var repeatYearly = false;
+    int? lunarYear;
+    int? lunarMonth;
+    int? lunarDay;
+    var lunarLeapMonth = false;
+
+    if (reader.availableBytes > 0) {
+      customTitle = reader.readBool() ? reader.readString() : null;
+      isLunarDate = reader.readBool();
+      repeatYearly = reader.readBool();
+      final ly = reader.readInt32();
+      final lm = reader.readByte();
+      final ld = reader.readByte();
+      lunarLeapMonth = reader.readBool();
+      if (isLunarDate && ly > 0 && lm > 0 && ld > 0) {
+        lunarYear = ly;
+        lunarMonth = lm;
+        lunarDay = ld;
+      }
+    }
+
     return FamilyEvent(
       id: id,
       familyTreeId: familyTreeId,
       personId: personId,
       eventKind: kind,
+      customTitle: customTitle,
       eventDate: eventDate,
+      isLunarDate: isLunarDate,
+      lunarYear: lunarYear,
+      lunarMonth: lunarMonth,
+      lunarDay: lunarDay,
+      lunarLeapMonth: lunarLeapMonth,
+      repeatYearly: repeatYearly,
       notes: notes,
       reminderEnabled: reminderEnabled,
       reminderDays: reminderDays,
@@ -57,5 +88,20 @@ class FamilyEventAdapter extends TypeAdapter<FamilyEvent> {
     writer
       ..writeString(obj.createdAt.toIso8601String())
       ..writeString(obj.updatedAt.toIso8601String());
+
+    final t = obj.customTitle?.trim();
+    writer.writeBool(t != null && t.isNotEmpty);
+    if (t != null && t.isNotEmpty) {
+      writer.writeString(t);
+    }
+    writer.writeBool(obj.isLunarDate);
+    writer.writeBool(obj.repeatYearly);
+    final ly = obj.isLunarDate ? (obj.lunarYear ?? 0) : 0;
+    final lm = obj.isLunarDate ? (obj.lunarMonth ?? 0) : 0;
+    final ld = obj.isLunarDate ? (obj.lunarDay ?? 0) : 0;
+    writer.writeInt32(ly);
+    writer.writeByte(lm.clamp(0, 255));
+    writer.writeByte(ld.clamp(0, 255));
+    writer.writeBool(obj.lunarLeapMonth);
   }
 }

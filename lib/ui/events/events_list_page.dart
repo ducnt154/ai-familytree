@@ -18,7 +18,10 @@ class _EventsListPageState extends State<EventsListPage> {
   int _segment = 0; // 0 tất cả, 1 sắp tới, 2 đã qua
   FamilyEventKind? _kindFilter;
 
-  static int _dateOrdinal(DateTime d) =>
+  static int _ordUtc(DateTime utc) =>
+      utc.year * 10000 + utc.month * 100 + utc.day;
+
+  static int _ordLocal(DateTime d) =>
       d.year * 10000 + d.month * 100 + d.day;
 
   IconData _iconFor(FamilyEventKind k) {
@@ -44,28 +47,74 @@ class _EventsListPageState extends State<EventsListPage> {
     return '$dd/$mm/${d.year}';
   }
 
-  List<FamilyEvent> _filtered(List<FamilyEvent> all) {
-    final now = DateTime.now();
-    final todayOrd = _dateOrdinal(now);
+  bool _isPastOneShot(FamilyEvent e, int todayOrd) =>
+      !e.repeatYearly && _ordUtc(e.eventDate) < todayOrd;
+
+  String _dateSubtitle(FamilyEvent e) {
+    final sol = _formatDdMmYyyy(e.eventDate);
+    if (e.isLunarDate &&
+        e.lunarDay != null &&
+        e.lunarMonth != null &&
+        e.lunarYear != null) {
+      final leap = e.lunarLeapMonth ? ' (nhuận)' : '';
+      return 'Âm ${e.lunarDay}/${e.lunarMonth}/${e.lunarYear}$leap → dương $sol';
+    }
+    return sol;
+  }
+
+  List<FamilyEvent> _filtered(List<FamilyEvent> all, DateTime now) {
+    final todayOrd = _ordLocal(now);
     Iterable<FamilyEvent> it = all;
+
     if (_segment == 1) {
       final end = now.add(const Duration(days: 30));
+      final endOrd = _ordLocal(end);
       it = it.where((e) {
-        final o = _dateOrdinal(e.eventDate);
-        final endOrd = _dateOrdinal(end);
-        return o >= todayOrd && o <= endOrd;
+        final next = e.nextOccurrenceOrdinal(now);
+        return next >= todayOrd && next <= endOrd;
       });
     } else if (_segment == 2) {
-      it = it.where((e) => _dateOrdinal(e.eventDate) < todayOrd);
+      it = it.where((e) => _isPastOneShot(e, todayOrd));
     }
+
     if (_kindFilter != null) {
       it = it.where((e) => e.eventKind == _kindFilter);
     }
+
     final list = it.toList();
+    int nextOrd(FamilyEvent e) => e.nextOccurrenceOrdinal(now);
+
+    if (_segment == 2) {
+      list.sort((a, b) {
+        final cmp = _ordUtc(b.eventDate).compareTo(_ordUtc(a.eventDate));
+        if (cmp != 0) return cmp;
+        return a.id.compareTo(b.id);
+      });
+      return list;
+    }
+
+    if (_segment == 1) {
+      list.sort((a, b) {
+        final cmp = nextOrd(a).compareTo(nextOrd(b));
+        if (cmp != 0) return cmp;
+        return a.id.compareTo(b.id);
+      });
+      return list;
+    }
+
+    // Tất cả: sắp tới / lặp lại trước (gần nhất trước), sự kiện đã qua (một lần) xuống cuối.
     list.sort((a, b) {
-      final cmp =
-          _dateOrdinal(a.eventDate).compareTo(_dateOrdinal(b.eventDate));
-      if (cmp != 0) return _segment == 2 ? -cmp : cmp;
+      final ap = _isPastOneShot(a, todayOrd);
+      final bp = _isPastOneShot(b, todayOrd);
+      if (!ap && bp) return -1;
+      if (ap && !bp) return 1;
+      if (!ap && !bp) {
+        final cmp = nextOrd(a).compareTo(nextOrd(b));
+        if (cmp != 0) return cmp;
+        return a.id.compareTo(b.id);
+      }
+      final cmp = _ordUtc(b.eventDate).compareTo(_ordUtc(a.eventDate));
+      if (cmp != 0) return cmp;
       return a.id.compareTo(b.id);
     });
     return list;
@@ -107,12 +156,40 @@ class _EventsListPageState extends State<EventsListPage> {
     }
   }
 
+  Future<void> _openAddSheet(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 8,
+            bottom: MediaQuery.viewInsetsOf(ctx).bottom + 16,
+          ),
+          child: SingleChildScrollView(
+            child: EventEditBody(
+              existing: null,
+              showSheetHeader: true,
+              onCancel: () => Navigator.pop(ctx),
+              onSaved: () => Navigator.pop(ctx),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<FamilyTreeController>(
       builder: (context, ctrl, _) {
         final scheme = Theme.of(context).colorScheme;
         final tree = ctrl.activeTree;
+        final now = DateTime.now();
         if (tree == null) {
           return Scaffold(
             body: Center(
@@ -129,7 +206,7 @@ class _EventsListPageState extends State<EventsListPage> {
             ),
           );
         }
-        final items = _filtered(ctrl.events);
+        final items = _filtered(ctrl.events, now);
         return Scaffold(
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -195,8 +272,9 @@ class _EventsListPageState extends State<EventsListPage> {
                               ),
                               title: Text(e.displayTitle),
                               subtitle: Text(
-                                '${_formatDdMmYyyy(e.eventDate)} · $name'
+                                '${_dateSubtitle(e)} · $name'
                                 '${e.notes != null && e.notes!.isNotEmpty ? '\n${e.notes}' : ''}'
+                                '${e.repeatYearly ? '\nLặp hàng năm' : ''}'
                                 '${e.reminderEnabled ? '\nNhắc: ${e.reminderDays ?? 1} ngày trước' : ''}',
                               ),
                               isThreeLine: true,
@@ -261,13 +339,7 @@ class _EventsListPageState extends State<EventsListPage> {
           floatingActionButton: FloatingActionButton(
             onPressed: ctrl.persons.isEmpty
                 ? null
-                : () async {
-                    await Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const EventEditPage(),
-                      ),
-                    );
-                  },
+                : () => _openAddSheet(context),
             child: const Icon(Icons.add),
           ),
         );

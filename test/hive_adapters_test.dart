@@ -158,7 +158,14 @@ void main() {
       familyTreeId: 't1',
       personId: 'p1',
       eventKind: FamilyEventKind.birthday,
-      eventDate: DateTime.utc(1990, 5, 12),
+      customTitle: 'Giỗ cụ',
+      eventDate: DateTime.utc(1990, 5, 12, 12),
+      isLunarDate: true,
+      lunarYear: 1990,
+      lunarMonth: 4,
+      lunarDay: 18,
+      lunarLeapMonth: false,
+      repeatYearly: true,
       notes: 'ghi chú',
       reminderEnabled: true,
       reminderDays: 3,
@@ -172,7 +179,14 @@ void main() {
     expect(read.familyTreeId, original.familyTreeId);
     expect(read.personId, original.personId);
     expect(read.eventKind, original.eventKind);
+    expect(read.customTitle, original.customTitle);
     expect(read.eventDate, original.eventDate);
+    expect(read.isLunarDate, original.isLunarDate);
+    expect(read.lunarYear, original.lunarYear);
+    expect(read.lunarMonth, original.lunarMonth);
+    expect(read.lunarDay, original.lunarDay);
+    expect(read.lunarLeapMonth, original.lunarLeapMonth);
+    expect(read.repeatYearly, original.repeatYearly);
     expect(read.notes, original.notes);
     expect(read.reminderEnabled, original.reminderEnabled);
     expect(read.reminderDays, original.reminderDays);
