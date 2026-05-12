@@ -31,7 +31,7 @@ class FamilyTreeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final seed = const Color(0xFF1B5E20); // deep green — family / growth
+    const seed = Color(0xFF1B5E20); // deep green — family / growth
 
     return MaterialApp(
       title: 'FamilyTree',
